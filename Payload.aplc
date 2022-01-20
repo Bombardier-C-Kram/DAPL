@@ -1,4 +1,5 @@
 :Class Payload
+    ⍝ Would also like to use a Constructor instead of function for this, change for later tho
     ⎕IO←0
 
     ∇ r←GeneratePayload(opcode data seq eventname)

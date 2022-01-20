@@ -1,6 +1,8 @@
 :Class Identify
     ⎕IO←0
-
+    
+    ⍝ A table of IntentOptions
+    ⍝ Formatted as, IntentName IntentIndexNumber
     ∇ r←getIntentOpts
       r←('GUILDS' 0)
       r←r,('GUILD_MEMBERS' 1)
@@ -20,7 +22,11 @@
       r←r,('GUILD_SCHEDULED_EVENTS' 15)
       r←16 2⍴r
     ∇
+
+    ⍝ Set intentOpts variable
     intentOpts←getIntentOpts
+
+    ⍝ A function to get an intentIndex from the Intent Opts Table
     getIntent←{intentOpts #.dapl.DAPL.Lookup ⍵}
 
     :Field Public Pld
@@ -53,11 +59,22 @@
       ⍝ Discords documetation is not clear weather it is a 16 bit long array, or a 17 bit long array
       ⍝ I will just assume that the discord employees are not insane.
      
-     
+      ⍝ To get our intent number, we first need to calculate it.
+      ⍝ Discord uses a bit shift to do this
+      ⍝ So, if we want GUILDS, and GUILD_MEMBERS intents,
+      ⍝ We have 0 and 1 as their indexes, 
+      ⍝ so we index into the array, and set those two bits to be 1
+
+      ⍝ 16 bit array
       intentBitArray←16⍴0
+
+      ⍝ get all the indicies for the array
       intentBitIndicies←getIntent¨intent
+
+      ⍝ Now set those indicies to be 1
       intentBitArray[intentBitIndicies]←1
      
+      ⍝ Convert our bit array to a number!
       intentNumber←2⊥⌽intentBitArray
      
      
@@ -75,18 +92,17 @@
       r.pld.large_threshold←50 ⍝ send the least amount of data as possible, its useless to me
       r.pld.intents←intentNumber ⍝ Int of intents
      
-      r.pld.properties.⍙⍙36⍙os←819⌶'-64'~⍨⊃# ⎕WG'APLVersion'
-      r.pld.properties.⍙⍙36⍙browser←'DiscordAPL'
-      r.pld.properties.⍙⍙36⍙device←'DiscordAPL'
+      r.pld.properties.⍙⍙36⍙os←819⌶'-64'~⍨⊃# ⎕WG'APLVersion' ⍝ Discord likes to know this, and it is manditory to supplpy
+      r.pld.properties.⍙⍙36⍙browser←'DiscordAPL' ⍝ Set to library name
+      r.pld.properties.⍙⍙36⍙device←'DiscordAPL' ⍝ Set to library name
      
-      r.pld.presence.since←⊂'null'
-      r.pld.presence.status←'online'
-      r.pld.presence.afk←⊂'false'
+      r.pld.presence.since←⊂'null' ⍝ Not needed since we are not AFK
+      r.pld.presence.status←'online' ⍝ Set to online
+      r.pld.presence.afk←⊂'false' ⍝ AFK. If set, set since to a timestamp
       r.pld.presence.activities←(1⍴(⎕NS''))
-      r.pld.presence.activities[0].name←'APL evolve'
+      r.pld.presence.activities[0].name←'APL evolve' ⍝ We are (watching) APL Evolve!
      
-      r.pld.presence.activities[0].type←3
-     
+      r.pld.presence.activities[0].type←3 ⍝ We are a type 3 (watching) activity
       Pld←r
     ∇
 :EndClass
