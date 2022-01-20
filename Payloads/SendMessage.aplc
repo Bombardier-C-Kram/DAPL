@@ -1,0 +1,28 @@
+:Class SendMessage
+    ⎕IO←0
+
+    :Field Public Pld
+
+    ∇ Payload(content embeds)
+      :Access Public
+      :Implements Constructor
+      ⍝ {
+      ⍝   "content": "Hello, World!",
+      ⍝   "tts": false,
+      ⍝   "embeds": []
+      ⍝ }
+     
+     
+     
+     
+     
+      r←⎕NS''
+      :If ⍬≡⍴embeds
+          embeds←1⍴embeds
+      :EndIf
+      r.embeds←embeds
+      r.tts←⊂'false'
+      r.content←content
+     Pld←r
+    ∇
+:EndClass

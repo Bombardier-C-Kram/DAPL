@@ -1,0 +1,52 @@
+:Class dotEnv
+    ⎕IO←0
+    lc←(819⌶) ⍝ lower case conversion
+    uc←1∘lc   ⍝ upper case conversion
+    ci←{(lc ⍺)⍺⍺ lc ⍵} ⍝ case insensitive operator
+    :Field Public varTable
+
+    ∇ make
+      :Access Public
+      :Implements Constructor
+      ⎕IO←0
+      'dfns'⎕NS ⍬
+      dfns.⎕CY'dfns' ⍝ Nice to have.
+      envFile←dfns.utf8get'.env'
+      envArr←(⎕UCS 10)(≠⊆⊢)envFile
+      remove←(⊥⍨' '∘=)¨envArr
+      remove←remove×¯1
+      whiteRemoved←remove↓¨envArr
+      isVar←~('#'(⊃⍷)¨whiteRemoved)
+      vars←isVar/whiteRemoved
+      varTable←↑('='(≠⊆⊢)¨vars)
+    ∇
+
+
+
+    ∇ r←table Lookup name
+      :Access Private
+      ⍝ lookup a name/value-table value by name, return '' if not found
+      r←table{(⍺[;1],⊂'')⊃⍨⍺[;0](⍳ci)eis ⍵}name
+    ∇
+
+    ∇ r←{a}eis w;f
+      :Access Private
+      ⍝ enclose if simple
+      :Access public shared
+      f←{⍺←1 ⋄ ,(⊂⍣(⍺=|≡⍵))⍵}
+      :If 0=⎕NC'a' ⋄ r←f w
+      :Else ⋄ r←a f w
+      :EndIf
+    ∇
+
+    ∇ r←getEnv key
+    :Access Public
+      r←varTable Lookup key
+      :If r≡'' ⍝ Its not found
+            ⍝ Check in dyalog env vars
+          r←⊢2 ⎕NQ #'GetEnvironment'key
+      :EndIf
+    ∇
+
+
+:EndClass

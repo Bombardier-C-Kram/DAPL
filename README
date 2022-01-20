@@ -1,0 +1,3 @@
+# Discord APL
+
+To run, simply link using `]LINK.Create dapl .` and then copy the .env file, complete the values, and run `dapl.DAPL.Run`

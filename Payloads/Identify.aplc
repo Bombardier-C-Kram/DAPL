@@ -1,0 +1,92 @@
+:Class Identify
+    ⎕IO←0
+
+    ∇ r←getIntentOpts
+      r←('GUILDS' 0)
+      r←r,('GUILD_MEMBERS' 1)
+      r←r,('GUILD_BANS' 2)
+      r←r,('GUILD_EMOJIS_AND_STICKERS' 3)
+      r←r,('GUILD_INTEGRATIONS' 4)
+      r←r,('GUILD_WEBHOOKS' 5)
+      r←r,('GUILD_INVITES' 6)
+      r←r,('GUILD_VOICE_STATES' 7)
+      r←r,('GUILD_PRESENCES' 8)
+      r←r,('GUILD_MESSAGES' 9)
+      r←r,('GUILD_MESSAGE_REACTIONS' 10)
+      r←r,('DIRECT_MESSAGE_TYPING' 11)
+      r←r,('DIRECT_MESSAGES' 12)
+      r←r,('DIRECT_MESSAGE_REACTIONS' 13)
+      r←r,('DIRECT_MESSAGE_TYPING' 14)
+      r←r,('GUILD_SCHEDULED_EVENTS' 15)
+      r←16 2⍴r
+    ∇
+    intentOpts←getIntentOpts
+    getIntent←{intentOpts #.dapl.DAPL.Lookup ⍵}
+
+    :Field Public Pld
+
+
+    ∇ Make(token intent)
+      :Access Public
+      :Implements Constructor
+     
+      ⍝ Intents available are the following:
+      ⍝ GUILDS
+      ⍝ GUILD_MEMBERS
+      ⍝ GUILD_BANS
+      ⍝ GUILD_EMOJIS_AND_STICKERS
+      ⍝ GUILD_INTEGRATIONS
+      ⍝ GUILD_WEBHOOKS
+      ⍝ GUILD_INVITES
+      ⍝ GUILD_VOICE_STATES
+      ⍝ GUILD_PRESENCES
+      ⍝ GUILD_MESSAGES
+      ⍝ GUILD_MESSAGE_REACTIONS
+      ⍝ GUILD_MESSAGE_TYPING
+      ⍝ DIRECT_MESSAGES
+      ⍝ DIRECT_MESSAGE_REACTIONS
+      ⍝ DIRECT_MESSAGE_TYPING
+      ⍝ GUILD_SCHEDULED_EVENTS
+      ⍝
+      ⍝ Example of intent array in args:
+      ⍝ ('GUILDS' 'GUILD_MEMBERS' 'GUILD_BANS')
+      ⍝ Discords documetation is not clear weather it is a 16 bit long array, or a 17 bit long array
+      ⍝ I will just assume that the discord employees are not insane.
+     
+     
+      intentBitArray←16⍴0
+      intentBitIndicies←getIntent¨intent
+      intentBitArray[intentBitIndicies]←1
+     
+      intentNumber←2⊥⌽intentBitArray
+     
+     
+     
+     
+     
+      r←⎕NS''
+      r.pld←⎕NS''
+      r.pld.properties←⎕NS''
+      r.pld.presence←⎕NS''
+     
+      r.op←2            ⍝ Ident OpCode
+      r.pld.token←token ⍝ Token
+      r.pld.compress←⊂'false' ⍝ Dont compress please
+      r.pld.large_threshold←50 ⍝ send the least amount of data as possible, its useless to me
+      r.pld.intents←intentNumber ⍝ Int of intents
+     
+      r.pld.properties.⍙⍙36⍙os←819⌶'-64'~⍨⊃# ⎕WG'APLVersion'
+      r.pld.properties.⍙⍙36⍙browser←'DiscordAPL'
+      r.pld.properties.⍙⍙36⍙device←'DiscordAPL'
+     
+      r.pld.presence.since←⊂'null'
+      r.pld.presence.status←'online'
+      r.pld.presence.afk←⊂'false'
+      r.pld.presence.activities←(1⍴(⎕NS''))
+      r.pld.presence.activities[0].name←'APL evolve'
+     
+      r.pld.presence.activities[0].type←3
+     
+      Pld←r
+    ∇
+:EndClass

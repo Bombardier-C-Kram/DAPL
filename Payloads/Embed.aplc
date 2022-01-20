@@ -1,0 +1,23 @@
+:Class Embed
+    ⎕IO←0
+
+    :Field Public Pld
+
+    ∇ make(title description) ⍝ More later
+      :Access Public
+      :Implements Constructor
+      ⍝ {
+      ⍝   "title": "Hello, Embed!",
+      ⍝   "description": "This is an embedded message."
+      ⍝ }
+     
+     
+     
+      r←⎕NS''
+      r.title←title
+      r.description←description
+      r.type←'rich'
+     
+      Pld←r
+    ∇
+:EndClass

@@ -1,0 +1,12 @@
+:Class Payload
+    ⎕IO←0
+
+    ∇ r←GeneratePayload(opcode data seq eventname)
+      :Access Public shared
+      r←⎕NS''
+      r.op←opcode   ⍝ opcode for the payload, see (https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-opcodes)
+      r.d←data      ⍝ event data
+      r.s←seq       ⍝ sequence number, used for resuming sessions and heartbeats
+      r.t←eventname ⍝ the event name for this payload
+    ∇
+:EndClass

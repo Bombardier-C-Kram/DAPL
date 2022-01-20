@@ -1,0 +1,5 @@
+You need to generate cirtificates for conga to do https properly (I think)
+
+Command to generate is the following `openssl req -nodes -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365`
+
+Not sure how to do this on Windows, nor if it works on mac.
