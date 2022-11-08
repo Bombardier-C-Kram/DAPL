@@ -1,1 +1,3 @@
 Once tatin is more widespread and more packages use it, switch to tatin
+
+Implement the new discord command stuff. Try to be more of a library instead of a bot.

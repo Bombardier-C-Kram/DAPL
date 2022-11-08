@@ -2,7 +2,7 @@
 ⍝ I would like to change to class, and then make this more of a library instead of a self contained bot, so one can simply import this library using tatin, and then create their own bot.
     ⎕IO←0 ⋄ ⎕ML←1
     env←⎕NEW ##.dependincies.dotenv.dotEnv
-    
+
 
     ⍝ The following functions are just copied from HTTPCommand
     NL←⎕UCS 13 10
@@ -38,7 +38,7 @@
     stopIf←{1∊⍵:-⎕TRAP←0 'C' '⎕←''Stopped for debugging... (Press Ctrl-Enter)''' ⋄ shy←0} ⍝ faster alternative to setting ⎕STOP
     assert←{⍺←'assertion failure' ⋄ 0∊⍵:⍺ ⎕SIGNAL 8 ⋄ shy←0}
 
-    
+
     port←443
     gatewayHost←'gateway.discord.gg'
     discordAPIVersion←'9'
@@ -52,7 +52,7 @@
     HeartBeatPayload←1 ⎕JSON ##.Payload.GeneratePayload(1 (⊂'null')(⊂'null')(⊂'null'))
 
     ∇ r←Run
-    
+     
     ⍝ Errors still happen frequantly with this... I think its because when I interrupt, it doesnt stop properly.
     ⍝ Probably a better exit method would be better, so that DRC.Close'c1' happens.
       :If ∨/9≠⌊⎕NC'Conga' 'DRC'
@@ -63,22 +63,22 @@
           DRC.Close'c1'
       :EndIf
       hdrs←makeHeaders ⍬
-      hdrs←'Host'(hdrs addHeader)gatewayHost⍝  Not needed i dont think ,(':',⍕port)
+      hdrs←'Host'(hdrs addHeader)gatewayHost ⍝  Not needed ,(':',⍕port)
       hdrs←'User-Agent'(hdrs addHeader)'IDontKnow/DiscordAPL'
       hdrs←'Accept'(hdrs addHeader)'*/*'
       headers←fmtHeaders hdrs
       ⍝ I am not actually sending these headers, as I couldnt figure out how, however I really want to send them
-
+     
       ⍝ The SSLValidation is also not working as I am not sure how to get the SSL CA certs.
-
+     
       cert←⊃DRC.X509Cert.ReadCertFromFile'cert/cert.pem'
       cert.KeyOrigin←'DER'('cert/key.pem')
      
      
-      DRC.Clt'c1' gatewayHost port 'http' 100000('X509'cert)('SSLValidation' 1)('Options'DRC.Options.WSAutoUpgrade)
-      DRC.SetProp'c1' 'WSUpgrade'(gatewayURI gatewayHost '')
+      DRC.Clt'c1'gatewayHost port'http' 100000('X509'cert)('SSLValidation' 1)('Options'DRC.Options.WSAutoUpgrade)
+      DRC.SetProp'c1' 'WSUpgrade'(gatewayURI gatewayHost'')
       r←DRC.Wait'c1'
-      
+     
       ⍝ Discord says hello!
       Hello←DRC.Wait'c1'
       data←0 ⎕JSON⊃↑Hello[3]
@@ -86,10 +86,10 @@
      
       ⍝ Lets identify ourselves. We need access to GUILDS and GUILD_MESSAGES intents for now
       ⍝ Not case sensitive for intents params (And no I don't suck THAT much at typing!)
-      Identify←(⎕NEW ##.Payloads.Identify(Token('gUiLDS' 'GUILD_MESSAGES'))).Pld
+      Identify←(⎕NEW ##.Payloads.Identify(Token('gUiLDS' 'GUILD_MESSAGES' 'MESSAGE_CONTENT'))).Pld
       IdntPld←1 ⎕JSON ##.Payload.GeneratePayload(Identify.op Identify.pld(⊂'null')(⊂'null'))
       DRC.Send'c1'(IdntPld 1)
-
+     
       ⍝ Spawn a new thread, and then wait for that thread. I am starting to think this is unnessacary though.
       ⍝ Causing more problems then not
       elThread←el&1⍴hbi
@@ -104,7 +104,7 @@
     ⍝ lookup a name/value-table value by name, return '∘???∘' if not found
       r←table{(⍺[;1],⊂'∘???∘')⊃⍨⍺[;0](⍳ci)eis ⍵}name
     ∇
-    
+
     ⍝ HTTPCommand
     ∇ r←{a}eis w;f
       ⍝ enclose if simple
@@ -133,20 +133,24 @@
           :If 1≢(hbThread∊⎕TNUMS)
              ⍝ Heartbeat thread does not exist, lets now make a new heartbeat thread.
             ⍝ We don't want gateway to think that we are dead!
-             hbThread←hb&hbi
+              hbThread←hb&hbi
           :EndIf
-
-
+     
+     
           ⍝ Do we have any new info from gateway?
           r←DRC.Wait'c1'
-
+     
           :If r[0]=100
             ⍝ Timeout, nothing new.
           :Else
             ⍝ Ooh! We have some new info, lets take a look!
-            
-            ⍝ JSON 
-            j←0 ⎕JSON⊃↑r[3]
+     
+            ⍝ JSON
+              j←0 ⎕JSON⊃↑r[3]
+
+              ⍝ Write event to a file for debug
+              ⍝ 'events/',('events-',⍕⎕AI[2]),'.json' (⎕NPUT⍨∘⊂)⊃↑r[3]
+              ('events/',('events-',⍕⎕AI[2]),'.json') (⎕NPUT⍨∘⊂)⊃↑r[3]
      
      
               :If j.op=11
@@ -155,7 +159,7 @@
               :Else
                 ⍝ We have a new event that is not heartbeat ack (At some point, should check that op=0)
                   ⎕←'Got a new event'
-
+     
                   ⍝ If you want to look at data recived, there is JSONWindow which can help visualise data
      
                   ⍝ Lets add some commands!
@@ -163,23 +167,23 @@
                   :If j.t≡'MESSAGE_CREATE'
                     ⍝ Data recived is a message, lets see what the content is.
                       content←j.d.content
-
+     
                       ⍝ If the content is APL
                       :If content≡'APL'
                         ⍝ Then we know the author is talking sense! Lets send them a nice little message back!
-
+     
                         ⍝ Lets add a nice little embed, with title APL, and description Its pretty cool
                           embed←(⎕NEW ##.Payloads.Embed('APL' 'Its pretty cool')).Pld
-
+     
                           ⍝ Create a Message Payload
                           MessagePld←(⎕NEW ##.Payloads.SendMessage('A cool language of thought'embed)).Pld
-
+     
                           ⍝ Send back the message to the channel that it came from!
                           endpoint←'/channels/',j.d.channel_id,'/messages'
-
+     
                           ⍝ Send and we now have a response
                           response←API(endpoint'POST'MessagePld)
-
+     
                           ⍝ Later parse response to check for errors maybe, or perhaps that should go to API class.
                       :ElseIf ')eval '(⊃⍷)content
                           ⍝ New command!
@@ -187,7 +191,7 @@
                           ⍝ If this were a public facing bot, obviously this should use https://github.com/abrudz/dyalog-safe-exec
                           args←1∘↓(' '(~⍤∊⍨⊆⊢)content)
                           arg←↑,/' '(1↓∘,,⍤0)args
-
+     
                           :Trap 0
                               ⍝ Try to execute
                               response←⍎arg
@@ -197,22 +201,22 @@
                           :EndTrap
                           ⍝ Format the response to be a string!
                           msg←{¯1↓∊({(+/∨\' '≠⌽⍵)↑¨↓⍵}⎕FMT ⍵),¨⎕UCS 10}response
-
+     
                           ⍝ Make a lovely discord codebox!
                           msg←'```',msg,'```'
-
+     
                           ⍝ Stick the codebox into the embed!
                           embed←(⎕NEW ##.Payloads.Embed('Evaluated expression'msg)).Pld
-
+     
                           ⍝ Make message payload
                           MessagePld←(⎕NEW ##.Payloads.SendMessage('Here is your evaluated payload!'embed)).Pld
-                          
+     
                           ⍝ Send back to channel it came from!
                           endpoint←'/channels/',j.d.channel_id,'/messages'
-
+     
                           ⍝ Send and now we have a response!
                           response←API(endpoint'POST'MessagePld)
-
+     
                           ⍝ Later parse response
                       :EndIf
                   :EndIf
@@ -225,10 +229,10 @@
     ⍝ endpoint: Endpoint to send to
     ⍝ type: HTTP type of request (GET or POST)
     ⍝ data: If request is a POST request, data to send
-      
+     
     ⍝ API Base
-    base←'https://discord.com/api/v',discordAPIVersion
-    url←base,endpoint
+      base←'https://discord.com/api/v',discordAPIVersion
+      url←base,endpoint
      
      
       :If type≡'POST'
@@ -240,28 +244,28 @@
           cmd.(Command URL)←'POST'url
           ⍝ Format data to be JSON format
           cmd.Params←SafeJSON 1 ⎕JSON data
-
+     
           ⍝ Tell we are using JSON to send!
           cmd.ContentType←'application/json;charset=utf-8'
-
+     
           ⍝ We add header: 'Authorization: Bot TOKENHERE'
           'Authorization'cmd.AddHeader'Bot ',Token
           response←cmd.Run.Data
       :Else
         ⍝ Confirm endpoint exists
           assert endpoint≢0
-          
+     
           cmd←⎕SE.SALT.New'HttpCommand'
           cmd.(Command URL)←'GET'url
-
+     
           ⍝ Tell we are using JSON!
           cmd.ContentType←'application/json;charset=utf-8'
-
+     
           ⍝ We add header: 'Authorization: Bot TOKENHERE'
           'Authorization'cmd.AddHeader'Bot ',Token
           response←cmd.Run.Data
       :EndIf
-
+     
      ⍝ Format response as APL structure
       r←0 ⎕JSON response
     ∇
@@ -289,7 +293,7 @@
       html←html,'</script>'
       size←150 250
       coord←'ScaledPixel'
-
+     
       ⍝ Create window using a random ID (So that multipule windows can be open at once)
       (⎕UCS 65+(5?25))⎕WC'HTMLRenderer'('HTML'html)('Size'size)('Coord'coord)
     ∇
