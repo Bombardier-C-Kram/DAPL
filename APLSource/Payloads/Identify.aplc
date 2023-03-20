@@ -28,7 +28,7 @@
     intentOpts←getIntentOpts
 
     ⍝ A function to get an intentIndex from the Intent Opts Table
-    getIntent←{getIntentOpts #.dapl.DAPL.Lookup ⍵}
+    getIntent←{getIntentOpts #.DAPL.DAPL.Lookup ⍵}
 
     :Field Public Pld
 

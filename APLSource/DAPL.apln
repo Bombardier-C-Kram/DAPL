@@ -1,7 +1,7 @@
 :NameSpace DAPL
 ⍝ I would like to change to class, and then make this more of a library instead of a self contained bot, so one can simply import this library using tatin, and then create their own bot.
     ⎕IO←0 ⋄ ⎕ML←1
-    env←⎕NEW ##.dependincies.dotenv.dotEnv
+    env←⎕NEW #.DAPL.DotEnvAPL
 
 
     ⍝ The following functions are just copied from HTTPCommand
@@ -46,6 +46,7 @@
     gatewayURI←'/?v=',discordAPIVersion,'&encoding=json'
     BufferSize←100000
     Token←env.getEnv 'DISCORD_TOKEN'
+    ⍝Token←''
     DRC←⍬
 
     ⍝ HBPayload only needs to be set once, since its the same always after!
@@ -64,7 +65,7 @@
       :EndIf
       hdrs←makeHeaders ⍬
       hdrs←'Host'(hdrs addHeader)gatewayHost ⍝  Not needed ,(':',⍕port)
-      hdrs←'User-Agent'(hdrs addHeader)'IDontKnow/DiscordAPL'
+      hdrs←'User-Agent'(hdrs addHeader)'IDontKnow/DiscordAPL' ⍝ TODO
       hdrs←'Accept'(hdrs addHeader)'*/*'
       headers←fmtHeaders hdrs
       ⍝ I am not actually sending these headers, as I couldnt figure out how, however I really want to send them
@@ -147,10 +148,13 @@
      
             ⍝ JSON
               j←0 ⎕JSON⊃↑r[3]
-
+     
               ⍝ Write event to a file for debug
               ⍝ 'events/',('events-',⍕⎕AI[2]),'.json' (⎕NPUT⍨∘⊂)⊃↑r[3]
-              ('events/',('events-',⍕⎕AI[2]),'.json') (⎕NPUT⍨∘⊂)⊃↑r[3]
+
+
+              3 ⎕MKDIR 'events/'
+              (('events/',('events-',⍕⎕AI[2]),'.json')(⎕NPUT⍨∘⊂)⊃↑r[3])
      
      
               :If j.op=11

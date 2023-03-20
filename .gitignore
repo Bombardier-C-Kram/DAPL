@@ -2,3 +2,10 @@
 cert/cert.pem
 cert/key.pem
 events/*
+
+# Ignore everything in this directory
+packages/*
+
+# But don't ignore these two files
+!packages/apl-buildlist.json
+!packages/apl-dependencies.txt
